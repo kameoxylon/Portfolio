@@ -10,6 +10,7 @@ int main (){
    FILE *cf;
    cf = fopen("dictionary.txt", "r");
    char line[16];
+   // hard coded until I figure out how to typecast char to int
    char *lines[149256];
    char *eof;
    char wordTest[row+1];
@@ -37,14 +38,17 @@ int main (){
    }
 
    for(i=0; i<row; i++){
+      // creates string to later check, hard coded to test
        wordTest [i] =  grid[0][i];
    }
 
+   //type caster from char to int, but it isnt working..
    //int tester = lines[0] - '0';
    //printf("%i", testet);
 
    int test;
    for(i=0; i<149256; i++){
+      // checks to see if word created in on file
        test = strcmp(lines[i], wordTest);
        if (test == 0){
            printf("FOUND IT! %i \n", i);
