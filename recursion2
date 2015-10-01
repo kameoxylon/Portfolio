@@ -1,37 +1,17 @@
 #include <stdio.h>
 
 #define ODOMETER 1
-#define PERMS 1
-#define COMBOS 1
-#define DERANGEMENTS 1
-#define UPWARDS 1
 
 // Recursive functions.
 void printOdometer(int odometer[], int k, int n);
-void printPerms(int perm[], int used[], int k, int n);
-void printCombos(int subset[], int k, int n);
-void printDerangements(int perm[], int used[], int k, int n);
-void printUpWards(char word[], int skip, int k, int n);
-
-// Prints our results.
-void print(int array[], int n);
-void printSubsets(int subset[], int n);
 
 // Wrapper functions that run the recursive functions.
 void runOdometer();
-void runPerms();
-void runCombos();
-void runDerangements();
-void runUpWards();
 
 int main() {
 
-    // Run what you want...
     if (ODOMETER) runOdometer();
-    if (PERMS) runPerms();
-    //if (COMBOS) runCombos();
-    //if (DERANGEMENTS) runDerangements();
-    //if (UPWARDS) runUpWards();
+
 
     return 0;
 }
