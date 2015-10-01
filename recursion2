@@ -19,6 +19,7 @@ int main() {
 // Runs a 4 digit odometer.
 void runOdometer() {
     int meter[4];
+    /// didnt want to change anything from original but lets say printOdometer(meter, 0, 3)
     printOdometer(meter, 0, 4);
     printf("\n");
 }
@@ -32,7 +33,7 @@ void printOdometer(int odometer[], int k, int n) {
     // Fill in each possible digit in slot k and recurse.
     else {
         int i;
-        for (i=0; i<10; i++) {
+        for (i=0; i<3; i++) {
             odometer[k] = i;
             //printf("yooyoy");
             printOdometer(odometer, k+1, n);
