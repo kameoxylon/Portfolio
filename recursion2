@@ -1,0 +1,61 @@
+#include <stdio.h>
+
+#define ODOMETER 1
+#define PERMS 1
+#define COMBOS 1
+#define DERANGEMENTS 1
+#define UPWARDS 1
+
+// Recursive functions.
+void printOdometer(int odometer[], int k, int n);
+void printPerms(int perm[], int used[], int k, int n);
+void printCombos(int subset[], int k, int n);
+void printDerangements(int perm[], int used[], int k, int n);
+void printUpWards(char word[], int skip, int k, int n);
+
+// Prints our results.
+void print(int array[], int n);
+void printSubsets(int subset[], int n);
+
+// Wrapper functions that run the recursive functions.
+void runOdometer();
+void runPerms();
+void runCombos();
+void runDerangements();
+void runUpWards();
+
+int main() {
+
+    // Run what you want...
+    if (ODOMETER) runOdometer();
+    if (PERMS) runPerms();
+    //if (COMBOS) runCombos();
+    //if (DERANGEMENTS) runDerangements();
+    //if (UPWARDS) runUpWards();
+
+    return 0;
+}
+
+// Runs a 4 digit odometer.
+void runOdometer() {
+    int meter[4];
+    printOdometer(meter, 0, 4);
+    printf("\n");
+}
+
+// Prints all possible seetings of odometer with n digits with the first k fixed.
+void printOdometer(int odometer[], int k, int n) {
+
+    // Base case.
+    if (k == n) print(odometer, n);
+
+    // Fill in each possible digit in slot k and recurse.
+    else {
+        int i;
+        for (i=0; i<10; i++) {
+            odometer[k] = i;
+            //printf("yooyoy");
+            printOdometer(odometer, k+1, n);
+        }
+    }
+}
