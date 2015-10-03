@@ -1,0 +1,87 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+#include <math.h>
+
+int** getColorCombos();
+void print();
+static int counter = -1;
+
+int main (){
+
+    int inputCases, slotsToFill, possibleColors, movesPlayed,
+        correctColorLocations, incorrectColorLocations, numberBuffer,
+        i, j;
+
+   // scanf("%i", &inputCases);
+    scanf("%i", &slotsToFill);
+    scanf("%i", &possibleColors);
+   // scanf("%i", &movesPlayed);
+
+    int power = pow(possibleColors, slotsToFill);
+    int grid[movesPlayed][slotsToFill];
+    int possibleCombos[possibleColors+1][slotsToFill];
+
+    int combos[slotsToFill];
+    int** combinationGrid = getColorCombos(combos, 0, slotsToFill, possibleColors, power);
+
+    //debug
+    printf("%i", combinationGrid[0][0]);
+
+
+    /* stuff to work on later when grid is working
+    for (i=0; i<movesPlayed; i++){
+        for(j=0; j<slotsToFill; j++){
+        scanf("%i", &numberBuffer);
+        grid[i][j] = numberBuffer;
+        }
+    }
+    */
+
+    return 0;
+}
+
+// Prints all possible seetings of odometer with n digits with the first k fixed.
+int** getColorCombos(int colorCmb[], int k, int slotsToFill, int possibleColors, int power) {
+    int** combinationGrid;
+    combinationGrid = (int**) malloc(sizeof(int)*power);
+    int bufNumber;
+
+    // Base case. Copies combination into grid.
+    if (k == slotsToFill){
+        bufNumber = countByOne();
+        combinationGrid[bufNumber] = (int*) malloc (sizeof(int)*slotsToFill);
+        //memcpy(combinationGrid, colorCmb, slotsToFill*sizeof *combinationGrid);
+        int j;
+        for(j=0; j<slotsToFill; j++){
+            printf("here is color %i\n", colorCmb[j]);
+            combinationGrid[bufNumber][j] = colorCmb[j];
+            printf("here is grid %i\n", combinationGrid[bufNumber][j]);
+        }
+        printf("here is counter %i\n", bufNumber);
+        print(combinationGrid[bufNumber], slotsToFill);
+    }
+
+    // Fill in each possible digit in slot slotsToFill and recurse. Creates combos.
+    else {
+        int i;
+        for (i=0; i<possibleColors; i++) {
+            colorCmb[k] = i;
+            getColorCombos(colorCmb, k+1, slotsToFill, possibleColors, power);
+        }
+    }
+    return combinationGrid;
+}
+
+void countByOne (){
+    counter++;
+    return counter;
+}
+
+void print(int array[], int n) {
+    int i;
+    for (i=0; i<n; i++)
+        printf("%i ", array[i]);
+    printf("\n");
+}
+
