@@ -1,0 +1,51 @@
+#include <stdio.h>
+#include <stdlib.h>
+
+void freeMyArray();
+char*** mazeCreator();
+
+int main (){
+
+    int howManyMazes, rows, columns;
+    char** maze;
+    //char** test;
+    scanf("%i", &rows);
+    scanf("%i", &columns);
+
+    mazeCreator(&maze, rows, columns);
+    printf("%s ", &maze[0]);
+    //test = mazeCreator(&maze, rows, columns);
+    //printf("%s ", &test[0]);
+
+    return 0;
+}
+
+char*** mazeCreator(char** maze, int rows, int columns){
+    //char* inputLine;
+    //inputLine = (char*) malloc (sizeof(char) * column);
+    int i;
+    maze = (char**) malloc (sizeof(char)*rows);
+    for (i=0; i<rows; i++){
+        maze[i] = (char*) malloc (sizeof(char)*columns);
+        scanf("%s", &maze[i]);
+        printf("%s ", &maze[i]);
+
+    }
+    printf("%s ", &maze[0]);
+    return maze;
+}
+
+void freeMyArray(char** array, int rows){
+    int i;
+    for(i=0; i<rows; i++){
+        free(array[i]);
+    }
+    free(array);
+}
+
+void printMyArray(char** array, int rows) {
+    int i;
+    for (i=0; i<rows; i++)
+        printf("%s ", &array[i]);
+    printf("\n");
+}
