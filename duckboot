@@ -1,0 +1,205 @@
+/*
+Yitzak Hernandez
+3354424
+From lab day - 10/15/15
+*/
+#include <stdio.h>
+#include <stdlib.h>
+
+struct node {
+     char* data;
+     struct node *next;
+};
+
+struct node* head;
+struct node* insert(struct node* list,char* d );
+struct node* del(struct node* list,int p );
+void print( struct node *list);
+void freelist(struct node* list);
+
+char*** listToArray(struct node *list, char** array, int size);
+void freeMyArray(char** array, int rows);
+
+int main( ) {
+
+    char word [20];
+    int numberOfFriends, rounds, goose, goosies, duckies, temp, cases, i;
+    int counter = 0, fullFriendCounter = 0, casesCounter = 0;
+    char** allFriends;
+    allFriends = (char**) malloc (sizeof(char*) *100000);
+    char* friendsInEach;
+
+    scanf("%d", &cases);
+    friendsInEach = (int*) malloc (sizeof(int*) *cases);
+    while(casesCounter < cases){
+
+        struct node *pList=NULL;
+
+        counter = 0;
+        scanf("%d", &numberOfFriends);
+        while (counter < numberOfFriends){
+            scanf("%s", &word);
+            pList = insert(pList, word);
+            counter++;
+        }
+
+        scanf("%d", &rounds);
+        scanf("%d", &goose);
+
+        //goes through ll and removes the correct "boots".
+        counter = 0;
+        goosies = goose;
+        while (counter < rounds){
+            if(numberOfFriends > 0){
+            temp = goosies%numberOfFriends;
+            pList = del(pList, temp+1);
+            duckies = temp;
+            goosies = duckies + goose;
+            counter++;
+            numberOfFriends--;
+            }
+        }
+
+        friendsInEach[casesCounter] = numberOfFriends;
+        //takes ll and put it into an array and sorts it.
+        if (numberOfFriends > 0){
+            char** sortedArray;
+            sortedArray = (char**) malloc (sizeof(char *)*numberOfFriends);
+
+            for(i = 0; i<numberOfFriends; i++){
+                sortedArray[i] = (char*) malloc(sizeof(char *)*20);
+            }
+            listToArray(pList, sortedArray, numberOfFriends);
+
+            int j = 0;
+            for(i=fullFriendCounter; i<(numberOfFriends+fullFriendCounter); i++){
+                allFriends[i] = (char*) malloc(sizeof(char*) *20);
+                strcpy(allFriends[i], sortedArray[j]);
+                j++;
+            }
+            fullFriendCounter = fullFriendCounter + numberOfFriends;
+            freeMyArray(sortedArray, numberOfFriends);
+        }
+
+        casesCounter++;
+        freelist(pList);
+
+    }//cases counter close
+
+    casesCounter = 0, counter = 0;
+    int twoDCounter = 0;
+    while (casesCounter < cases){
+        if(friendsInEach[counter] == 0){
+            printf("Game [%d]:\n", casesCounter+1);
+            printf("Jimmy has friends no more.\n");
+        } else {
+            printf("Game [%d]: \n", casesCounter+1);
+            for(i=0; i<friendsInEach[counter]; i++){
+                printf("%s\n", allFriends[twoDCounter]);
+                twoDCounter++;
+            }
+        }
+        printf("\n");
+        counter++;
+        casesCounter++;
+    }
+
+    free(friendsInEach);
+    return 0;
+}
+
+// Recursively inserts item into the LL pointed to by list.
+struct node* insert(struct node *list,char* word) {
+
+    struct node * pNew=(struct node *) (malloc(sizeof(struct  node)));
+    pNew->data = malloc(strlen(word)+1);
+    // Node is at front, insert and return.
+    if (list == NULL) {
+        strcpy(pNew->data, word);
+        pNew->next = list;
+        return pNew;
+    }
+
+    // Recursively insert and return the front of the list.
+    list->next = insert(list->next, word);
+    return list;
+}
+
+//takes in ll and puts it into an array and sorts it
+char*** listToArray(struct node *list, char** array, int size){
+    int i = 0, counter = 0, j;
+    while (counter < size){
+        memcpy(array[i], list->data, 20);
+        list = list->next;
+        i++;
+        counter++;
+    }
+    //sorts the array in abc
+    char temp[20];
+    for (i = 1; i < size; i++) {
+      for (j = 1; j < size; j++) {
+         if (strcmp(array[j - 1], array[j]) > 0) {
+            strcpy(temp, array[j - 1]);
+            strcpy(array[j - 1], array[j]);
+            strcpy(array[j], temp);
+         }
+      }
+    }
+
+}
+
+//deletes the name from ll
+struct node* del(struct node *list,int position) {
+    struct node *temp, *del;
+    temp = list;
+
+    if (list == NULL)
+        return;
+
+    if (position == 1){
+        del = temp->next;
+        free(temp);
+        return del;
+    } else {
+        int i;
+        //position has to be n-2 to account for next lines.
+        for(i=1; i<position-1; i++){
+            temp = temp->next;
+            // temp points to (n-1)th node
+        }
+        del = temp->next;
+        temp->next = del->next;
+        free(del);
+
+    }
+    return list;
+}
+
+void freeMyArray(char** array, int rows){
+    int i;
+    for(i=0; i<rows; i++){
+        free(array[i]);
+    }
+    free(array);
+}
+
+
+// Frees each node in the LL pointed to by list.
+void freelist(struct node* list) {
+    if (list == NULL) return;
+
+    if (list->next != NULL)
+        freelist(list->next);
+
+    free(list);
+}
+
+void print(struct node *list) {
+    // Iterate through each item and print it!
+    while (list != NULL) {
+        printf("-->%s\n", list->data);
+        list = list->next;
+    }
+    printf("\n");
+}
+
