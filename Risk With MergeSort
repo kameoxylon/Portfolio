@@ -1,0 +1,133 @@
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int*** armyCreator(int* army, int size);
+int letsPlayRisk(int attackingArmy[], int defendingArmy[], int sizeOfArmies);
+void freeMyPEOPLE(int* army);
+
+int Is_Sorted(int values[], int length);
+void MergeSort(int values[], int start, int end);
+void Merge(int values[], int start, int middle, int end);
+
+int main (){
+
+    int cases, sizeOfArmies, attackerWins, counter = 0;
+    int* attackingArmy;
+    int* defendingArmy;
+
+    scanf("%d", &cases);
+    int i;
+    while(counter < cases){
+        counter++;
+        scanf("%d", &sizeOfArmies);
+
+        attackingArmy = (int*) malloc (sizeof(int*)*sizeOfArmies);
+        defendingArmy = (int*) malloc (sizeof(int*)*sizeOfArmies);
+        armyCreator(attackingArmy, sizeOfArmies);
+        armyCreator(defendingArmy, sizeOfArmies);
+
+        MergeSort(attackingArmy, 0, sizeOfArmies-1);
+        MergeSort(defendingArmy, 0, sizeOfArmies-1);
+
+        attackerWins = letsPlayRisk(attackingArmy, defendingArmy, sizeOfArmies);
+        printf("%d\n", attackerWins);
+
+
+        freeMyPEOPLE(attackingArmy);
+        freeMyPEOPLE(defendingArmy);
+    }
+
+
+    return 0;
+}
+
+int Is_Sorted(int values[], int length) {
+
+    int i;
+
+    // Return false if any adjacent pair is out of order.
+    for (i=0; i<length-1; i++)
+        if (values[i] > values[i+1])
+            return 0;
+
+    return 1;
+}
+
+int*** armyCreator(int* army, int size){
+    int i;
+    for(i = 0; i < size; i++){
+        scanf("%d", &army[i]);
+    }
+}
+
+int letsPlayRisk(int attackingArmy[], int defendingArmy[], int sizeOfArmies){
+    int attackerWins = 0, defenderWins = 0, counter = 0;
+    int defCounter = sizeOfArmies-1, atkCounter = sizeOfArmies-1;
+    while (counter < sizeOfArmies){
+        if(defendingArmy[defCounter] >= attackingArmy[atkCounter]){
+            defCounter--;
+            atkCounter--;
+            defenderWins++;
+        } else {
+            atkCounter--;
+            attackerWins++;
+        }
+        counter++;
+    }
+    return defenderWins;
+}
+
+void freeMyPEOPLE(int* army){
+    free(army);
+}
+
+void MergeSort(int values[], int start, int end) {
+
+    int mid;
+
+    if (start < end) {
+
+        mid = (start+end)/2;
+        MergeSort(values, start, mid);
+
+        MergeSort(values, mid+1, end);
+
+        Merge(values, start, mid+1, end);
+    }
+}
+
+void Merge(int values[], int start, int middle, int end) {
+
+    int *temp, i, length, count1, count2, mc;
+
+    length = end - start + 1;
+    temp = (int*)calloc(length, sizeof(int));
+
+    count1 = start;
+    count2 = middle;
+
+    mc = 0;
+
+    while ((count1 < middle) || (count2 <= end)) {
+
+        if (count2 > end || (count1 < middle && values[count1] < values[count2])) {
+            temp[mc] = values[count1];
+            count1++;
+            mc++;
+        }
+
+        else {
+            temp[mc] = values[count2];
+            count2++;
+            mc++;
+        }
+    }
+
+    for (i=start; i<=end; i++){
+        values[i] = temp[i - start];
+    }
+
+    free(temp);
+}
+
