@@ -1,0 +1,150 @@
+/* Yitzak Hernandez
+3354424
+UCF*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int lettersToNumbers (int size, int xAxisSize, char letters[10000],
+                      int numbers[xAxisSize][size]);
+int matrixCalculation (int mSize, int xAxisSize, int beforeCipher[xAxisSize][mSize],
+                       int afterCipher[xAxisSize][mSize], int matrix[mSize][mSize]);
+char numbersToLetters (int size, int xAxisSize, int numbers[xAxisSize][size]);
+
+int main (){
+
+    char myPlainText[10000], myKeyText[10000], plainTextOutput[10000];
+    char messageFileName[50], keyFileName[50];
+    char c;
+    int i, j, matrixSize;
+
+    /* Here user inputs the encryption key file name in order for the program
+    to find the file, read it, input it in a 2d integer array and output it
+    into the console. If the program cannot find the file it spits out an error
+    message.*/
+    scanf("%s", &keyFileName);
+    FILE *keyTextFile;
+    keyTextFile = fopen(keyFileName, "r");
+    if (keyTextFile == NULL){
+        printf("An error occurred while opening key file.\n");
+        return 1;
+    }
+    fscanf(keyTextFile, "%d", &matrixSize);
+    printf("%d\n", matrixSize);
+    int encryptionMatrix[matrixSize][matrixSize];
+    for(i = 0; i < matrixSize; i++){
+        for(j = 0; j < matrixSize; j++){
+            fscanf(keyTextFile, "%d", &encryptionMatrix[i][j]);
+            printf("%d ", encryptionMatrix[i][j]);
+        }
+        printf("\n");
+    }
+
+    /*User inputs the name of the file containing the message wanted to be encrypted.
+    It spits out an error message if it cannot find the file. It spits out the file
+    into the console, then it puts it into an array, puts all characters to lowercase,
+    followed by removing the following special characters ',' '.' '!' '?' ' ' '\n'.*/
+    scanf("%s", &messageFileName);
+    FILE *plainTextFile;
+    plainTextFile = fopen(messageFileName, "r");
+    if (plainTextFile == NULL){
+        printf("An error occurred while opening cipher text.\n");
+        return 1;
+    }
+    i = 0;
+    while (!feof(plainTextFile)){
+        c = fgetc(plainTextFile);
+        printf("%c", c);
+    }
+    fseek(plainTextFile, 0, SEEK_SET);
+    printf("\n");
+    while (!feof(plainTextFile)){
+        c = fgetc(plainTextFile);
+        c = tolower(c);
+        if (c == ' ' || c == ',' || c == '.' || c == '!' || c == '?'
+            || c == '\n' || c == ';' || c == ':' || c == '\'' || c == '"'
+             || c == '&' || c == '@' || c == '#' || c == '$' || c == '%'
+              || c == '^' || c == '*' || c == '-' || c == '_' || c == '('
+               || c == ')' || c == '/' || c == '<' || c == '>'
+                || c == '+' || c == '=' || c == '[' || c == ']' || c == '`'
+                 || c == '{' || c == '}' || c == '‘' || c == '’'){
+            continue;
+        }
+        myPlainText[i] = c;
+        i++;
+    }
+    i--;
+    int messageSize = i;
+
+    /* Now we append the correct amount of x's based on matrix size using
+    the mod function. Then convert the message into numbers with a = 0,
+    b = 1, etc followed by converting the message into numbers, using our
+    matrix calculator then finally spitting out the message back into letters.*/
+    while(messageSize % matrixSize != 0){
+        myPlainText[messageSize++] = 'x';
+}
+    int messageXaxis = messageSize / matrixSize;
+    int messageBeforeCipher[messageXaxis][matrixSize];
+    int messageAfterCipher[messageXaxis][matrixSize];
+    printf("%s\n", myPlainText);
+
+    lettersToNumbers(matrixSize, messageXaxis, myPlainText, messageBeforeCipher);
+    printf("\n");
+
+    matrixCalculation(matrixSize, messageXaxis, messageBeforeCipher, messageAfterCipher,
+                      encryptionMatrix);
+    printf("\n");
+
+    numbersToLetters(matrixSize, messageXaxis, messageAfterCipher);
+
+    return 0;
+}
+
+    /* Converts letters into numbers by taking the ascii code and subtracting
+    97 from it and storing it into an array.*/
+int lettersToNumbers (int size, int xAxisSize, char letters[10000],
+                      int numbers[xAxisSize][size]){
+    int i, j, count = 0;
+    for(i = 0; i < xAxisSize; i++){
+        for(j = 0; j < size; j++){
+            numbers[i][j] = letters[count] + '\0' - 97;
+            count++;
+            printf("%d ", numbers[i][j]);
+        }
+    }
+    return numbers;
+}
+
+    /*Converts numbers into letters by using the ascii code and reading it
+    as a char.*/
+char numbersToLetters (int size, int xAxisSize, int numbers[xAxisSize][size]){
+    int i, j;
+    char letter;
+    for(i = 0; i < xAxisSize; i++){
+        for(j = 0; j < size; j++){
+            letter = numbers[i][j] + 97;
+            //printf("%c", letter);
+        }
+    }
+
+}
+
+    /*The matrix calculation is done by taking the rows and multiplying with each
+    corresponding row on the messageBeforeCipher. The messageBeforeCipher is setup
+    so that each row contains the same amount of numbers as each row on the matrix.*/
+int matrixCalculation (int mSize, int xAxisSize, int beforeCipher[xAxisSize][mSize],
+                       int afterCipher[xAxisSize][mSize], int matrix[mSize][mSize]){
+    int i, j, count = 0, buffer = 0;
+    while (count < xAxisSize){
+        for (i = 0; i < mSize; i++){
+            for (j = 0; j < mSize; j++){
+                buffer = matrix[i][j] * beforeCipher[count][j] + buffer;
+            }
+            afterCipher[count][i] = buffer % 26;
+            //printf("%d ", afterCipher[count][i]);
+            buffer = 0;
+        }
+        count++;
+    }
+    return afterCipher;
+}
