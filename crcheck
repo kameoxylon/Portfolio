@@ -1,0 +1,341 @@
+/*
+Yitzak Hernandez
+UCF
+*/
+
+#include <stdio.h>
+#include <stdlib.h>
+
+int decimalToBinary (int decimal, char * binary[]);
+void twoDToOneD(char twoDArray[][8], char oneDArray[]);
+char *makeCRC(char *bitString);
+char fileToArray(char message[]);
+char fileToArrayV(char message[]);
+char binaryToHex(char result[], char* hexaDecimal[]);
+char binaryToHexaSimple(char result[]);
+
+int main ()
+{
+
+    char message[512], hexaDecimal[8];
+    char check;
+    char binary[4096], *result, binaryStep[512][8];
+    int buffer[8];
+    int count = 0, decimal, i, counter, hexInteger;
+
+    scanf("%s", &check);
+    if (check == 'v')
+    {
+        if (fileToArrayV(message) == 1)
+        {
+            printf("Failed\n");
+        }
+        else
+        {
+            while (count < 512)
+            {
+                printf("%c", message[count]);
+                count++;
+                if ((count % 64) == 0)
+                {
+                    printf("\n");
+                }
+            }
+            counter = 0;
+            count = 504;
+            while (counter < count)
+            {
+                decimal = message[counter];
+                decimalToBinary(decimal, buffer);
+                for (i = 0; i < 8; i++)
+                {
+                    binaryStep[counter][i] = buffer[i];
+                }
+                counter++;
+            }
+            printf("CRC Calculated - ");
+            twoDToOneD(binaryStep, binary);
+            result = makeCRC(binary);
+            binaryToHex(result, hexaDecimal);
+            count = 0;
+            char hexBuffer[4];
+            hexBuffer[0] = hexaDecimal[12];
+            hexBuffer[1] = hexaDecimal[8];
+            hexBuffer[2] = hexaDecimal[4];
+            hexBuffer[3] = hexaDecimal[0];
+            counter = 508;
+            while (count < 4)
+            {
+                hexBuffer[count] = toupper(hexBuffer[count]);
+                message[counter] = toupper(message[counter]);
+                if (hexBuffer[count] != message[counter])
+                {
+                    printf("\nCRC Fail.");
+                    break;
+                }
+                counter++;
+                count++;
+            }
+            if (count == 4)
+            {
+                printf(" - Success!");
+            }
+        }
+    }
+    else if (check == 'c') //calculate
+    {
+        if ((fileToArray(message)) == 1)
+        {
+            printf("Failed. \n");
+        }
+        else
+        {
+            while (count < 504)
+            {
+                printf("%c", message[count]);
+                count++;
+
+                if ((count % 64) == 0)
+                {
+                    counter = 0;
+                    while (counter < count)
+                    {
+                        decimal = message[counter];
+                        decimalToBinary(decimal, buffer);
+                        for (i = 0; i < 8; i++)
+                        {
+                            binaryStep[counter][i] = buffer[i];
+                        }
+                        counter++;
+                    }
+                    printf(" - ");
+                    twoDToOneD(binaryStep, binary);
+                    result = makeCRC(binary);
+                    binaryToHexaSimple(result);
+                    printf("\n");
+
+                }
+            }
+            int counter = 0;
+            while (counter < count)
+            {
+                decimal = message[counter];
+                decimalToBinary(decimal, buffer);
+                for (i = 0; i < 8; i++)
+                {
+                    binaryStep[counter][i] = buffer[i];
+                }
+                counter++;
+            }
+            twoDToOneD(binaryStep, binary);
+            result = makeCRC(binary);
+            binaryToHexaSimple(result);
+            printf(" - ");
+            binaryToHexaSimple(result);
+
+        }
+    }
+    else
+    {
+        printf("There was an error\n");
+    }
+    return 0;
+}
+
+/* This calculates a binary input char array and returns an integer
+hex value.*/
+char binaryToHexaSimple(char result[])
+{
+    char *a = result;
+    int num = 0;
+    do
+    {
+        int b = *a=='1'?1:0;
+        num = (num<<1)|b;
+        a++;
+    }
+    while (*a);
+    printf("%08X", num);
+    return num;
+
+}
+
+char binaryToHex(char result[], char* hexaDecimal[])
+{
+    int temp = 0, j = 0, i = 0;
+    while(result[i])
+    {
+        result[i] = result[i] -48;
+        ++i;
+    }
+    --i;
+    while((i - 2) >= 0)
+    {
+        temp =  result[i-3] *8 + result[i-2] *4 +  result[i-1] *2 + result[i] ;
+        if(temp > 9)
+            hexaDecimal[j++] = temp + 55;
+        else
+            hexaDecimal[j++] = temp + 48;
+        i=i-4;
+    }
+
+
+    if(i ==1)
+        hexaDecimal[j] = result[i-1] *2 + result[i] + 48 ;
+    else if(i==0)
+        hexaDecimal[j] =  result[i] + 48 ;
+    else
+        --j;
+
+    printf("0000");
+    while(j>=0)
+    {
+        printf("%c",hexaDecimal[j--]);
+    }
+}
+
+char fileToArray(char message[])
+{
+    char fileName[50];
+    int count = 0;
+
+    scanf("%s", &fileName);
+    FILE* myFile;
+    myFile = fopen(fileName, "r");
+
+    if (myFile == NULL)
+    {
+        printf("There was an error\n");
+        return 1;
+    }
+    else
+    {
+        while ((message[count] = fgetc(myFile)) != EOF)
+        {
+            if ((message[count] >= 7)&&(message[count] <=13))
+            {
+                //do nothing.
+            }
+            else if ((message[count] < 7)||((message[count] > 13)&&(message[count] <= 31)))
+            {
+                printf("Error, invalid character.");
+                return 1;
+                break;
+            }
+            else
+            {
+                count++;
+            }
+        }
+        while (count <= 504)
+        {
+            message[count] = '.';
+            count++;
+        }
+    }
+}
+
+char fileToArrayV(char message[])
+{
+    char fileName[50];
+    int count = 0;
+
+    scanf("%s", &fileName);
+    FILE* myFile;
+    myFile = fopen(fileName, "r");
+
+    if (myFile == NULL)
+    {
+        printf("There was an error\n");
+        return 1;
+    }
+    else
+    {
+        while ((message[count] = fgetc(myFile)) != EOF)
+        {
+            if ((message[count] >= 7)&&(message[count] <=13))
+            {
+                //do nothing.
+            }
+            else if ((message[count] < 7)||((message[count] > 13)&&(message[count] <= 31)))
+            {
+                printf("Error, invalid character.");
+                return 1;
+                break;
+            }
+            else
+            {
+                count++;
+            }
+        }
+    }
+}
+
+void twoDToOneD(char twoDArray[][8], char oneDArray[])
+{
+    int i, j, count = 0;
+    for (i = 0; i < 512; i++)
+    {
+        for (j = 0; j < 8; j++)
+        {
+            oneDArray[count] = twoDArray[i][j];
+            count++;
+        }
+    }
+}
+
+int decimalToBinary (int decimal, char * binary[])
+{
+    int c, k, count = 0;
+
+    for (c = 7; c >= 0; c--)
+    {
+        k = decimal >> c;
+        if (k & 1)
+        {
+            binary[count] = '1';
+            count++;
+        }
+        else
+        {
+            binary[count] = '0';
+            count++;
+        }
+    }
+}
+
+char *makeCRC(char *bitString)
+{
+    static char Res[16];
+    char CRC[15];
+    int  i;
+    char DoInvert;
+
+    for (i=0; i<15; ++i)  CRC[i] = 0;
+
+    for (i=0; i<strlen(bitString); ++i)
+    {
+        DoInvert = ('1'==bitString[i]) ^ CRC[14];
+
+        CRC[14] = CRC[13];
+        CRC[13] = CRC[12] ^ DoInvert;
+        CRC[12] = CRC[11];
+        CRC[11] = CRC[10];
+        CRC[10] = CRC[9];
+        CRC[9] = CRC[8];
+        CRC[8] = CRC[7];
+        CRC[7] = CRC[6];
+        CRC[6] = CRC[5] ^ DoInvert;
+        CRC[5] = CRC[4];
+        CRC[4] = CRC[3] ^ DoInvert;
+        CRC[3] = CRC[2];
+        CRC[2] = CRC[1];
+        CRC[1] = CRC[0] ^ DoInvert;
+        CRC[0] = DoInvert;
+    }
+
+    for (i=0; i<15; ++i)  Res[14-i] = CRC[i] ? '1' : '0';
+    Res[15] = 0;
+
+    return(Res);
+}
